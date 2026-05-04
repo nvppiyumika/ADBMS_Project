@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAFAF9;
+  --foreground: #1c1917;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  /* Subtle ambient gradient background suitable for BI/Bakery */
+  .bg-mesh-gradient {
+    background-color: #FAFAF9;
+    background-image: 
+      radial-gradient(at 10% 10%, hsla(35, 100%, 88%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 90% 10%, hsla(20, 100%, 90%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(45, 100%, 94%, 0.5) 0px, transparent 50%),
+      radial-gradient(at 10% 90%, hsla(15, 100%, 92%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 90% 90%, hsla(30, 100%, 85%, 0.3) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Core Glassmorphism Surface */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(69, 26, 3, 0.04);
+  }
+
+  /* Interactive Hover State for Cards */
+  .glass-card-hover {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(251, 191, 36, 0.4); /* amber-400 */
+    box-shadow: 0 15px 35px 0 rgba(245, 158, 11, 0.1); /* amber-500 */
+    transform: translateY(-4px);
+  }
+
+  /* Inner Elements (Nested Glass) */
+  .glass-inner {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  /* Header Glass */
+  .glass-header {
+    background: rgba(250, 250, 249, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  }
 }
