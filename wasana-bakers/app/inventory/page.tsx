@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { PackageSearch, Plus, Tag, AlertTriangle, Wheat, ChefHat } from 'lucide-react';
+import { PackageSearch, Plus, Tag, AlertTriangle, Wheat, ChefHat, Edit, Trash2 } from 'lucide-react';
 
 interface ProductRecord {
     ProductID: number;
     ProductName: string;
+    CategoryID: number | null;
     CategoryName: string | null;
     UnitPrice: number;
     ReorderLevel: number | null;
@@ -20,12 +21,18 @@ interface IngredientRecord {
     ReorderLevel: number | null;
 }
 
+interface CategoryRecord {
+    CategoryID: number;
+    CategoryName: string;
+}
+
 export default function InventoryPage() {
     const [activeTab, setActiveTab] = useState<'products' | 'ingredients'>('products');
     
     // Data States
     const [products, setProducts] = useState<ProductRecord[]>([]);
     const [ingredients, setIngredients] = useState<IngredientRecord[]>([]);
+    const [categories, setCategories] = useState<CategoryRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +42,14 @@ export default function InventoryPage() {
     const [bakeQuantity, setBakeQuantity] = useState<number>(1);
     const [isBaking, setIsBaking] = useState(false);
 
+    // Add Product Modal States
+    const [showAddProductModal, setShowAddProductModal] = useState(false);
+    const [editingProductId, setEditingProductId] = useState<number | null>(null);
+    const [newProductName, setNewProductName] = useState('');
+    const [newProductCategory, setNewProductCategory] = useState<number | ''>('');
+    const [newProductPrice, setNewProductPrice] = useState<number | ''>('');
+    const [isAddingProduct, setIsAddingProduct] = useState(false);
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -42,15 +57,17 @@ export default function InventoryPage() {
     async function fetchData() {
         setIsLoading(true);
         try {
-            const [prodRes, ingRes] = await Promise.all([
+            const [prodRes, ingRes, catRes] = await Promise.all([
                 fetch('/api/inventory/products'),
-                fetch('/api/inventory/ingredients')
+                fetch('/api/inventory/ingredients'),
+                fetch('/api/categories')
             ]);
             
-            if (!prodRes.ok || !ingRes.ok) throw new Error('Failed to fetch inventory data');
+            if (!prodRes.ok || !ingRes.ok || !catRes.ok) throw new Error('Failed to fetch inventory data');
             
             setProducts(await prodRes.json());
             setIngredients(await ingRes.json());
+            setCategories(await catRes.json());
             setError(null);
         } catch (err: any) {
             setError(err.message);
@@ -87,6 +104,74 @@ export default function InventoryPage() {
         }
     }
 
+    function openAddProductModal() {
+        setEditingProductId(null);
+        setNewProductName('');
+        setNewProductCategory('');
+        setNewProductPrice('');
+        setShowAddProductModal(true);
+    }
+
+    function openEditProductModal(product: ProductRecord) {
+        setEditingProductId(product.ProductID);
+        setNewProductName(product.ProductName);
+        setNewProductCategory(product.CategoryID || '');
+        setNewProductPrice(product.UnitPrice);
+        setShowAddProductModal(true);
+    }
+
+    async function handleDeleteProduct(productId: number, productName: string) {
+        if (!confirm(`Are you sure you want to delete ${productName}?`)) return;
+        try {
+            const res = await fetch(`/api/inventory/products?productId=${productId}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Failed to delete product');
+            }
+            await fetchData();
+        } catch (err: any) {
+            alert(err.message);
+        }
+    }
+
+    async function handleSaveProduct() {
+        if (!newProductName || newProductPrice === '' || newProductPrice <= 0) return alert('Valid Name and Price are required.');
+        setIsAddingProduct(true);
+        try {
+            const method = editingProductId ? 'PUT' : 'POST';
+            const payload = { 
+                ProductID: editingProductId,
+                ProductName: newProductName, 
+                UnitPrice: newProductPrice,
+                CategoryID: newProductCategory === '' ? null : newProductCategory,
+                ReorderLevel: 10
+            };
+
+            const res = await fetch('/api/inventory/products', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || `Failed to ${editingProductId ? 'update' : 'add'} product`);
+            }
+
+            setShowAddProductModal(false);
+            setNewProductName('');
+            setNewProductCategory('');
+            setNewProductPrice('');
+            setEditingProductId(null);
+            await fetchData();
+            alert(`Product successfully ${editingProductId ? 'updated' : 'added'}!`);
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsAddingProduct(false);
+        }
+    }
+
     return (
         <main className="flex flex-col min-h-screen bg-mesh-gradient relative">
             <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
@@ -119,13 +204,22 @@ export default function InventoryPage() {
 
                 <div className="flex items-center gap-4">
                     {activeTab === 'products' ? (
-                        <button 
-                            onClick={() => setShowBakeModal(true)}
-                            className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2"
-                        >
-                            <ChefHat size={20} />
-                            Bake Product
-                        </button>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={openAddProductModal}
+                                className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2"
+                            >
+                                <Plus size={20} />
+                                Add New Product
+                            </button>
+                            <button 
+                                onClick={() => setShowBakeModal(true)}
+                                className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2"
+                            >
+                                <ChefHat size={20} />
+                                Bake Product
+                            </button>
+                        </div>
                     ) : (
                         <button className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2">
                             <Plus size={20} />
@@ -162,6 +256,7 @@ export default function InventoryPage() {
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider"><Tag size={16} className="inline mr-2"/> Category</th>
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Unit Price</th>
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">In Stock</th>
+                                                <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-amber-900/5">
@@ -183,6 +278,22 @@ export default function InventoryPage() {
                                                         <span className={`px-3 py-1.5 rounded-lg border font-bold ${product.StockQuantity > (product.ReorderLevel || 10) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                                             {product.StockQuantity} units
                                                         </span>
+                                                    </td>
+                                                    <td className="p-5 text-right space-x-2">
+                                                        <button 
+                                                            onClick={() => openEditProductModal(product)} 
+                                                            className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                                            title="Edit Product"
+                                                        >
+                                                            <Edit size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteProduct(product.ProductID, product.ProductName)} 
+                                                            className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete Product"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -280,6 +391,79 @@ export default function InventoryPage() {
                                     className="flex-1 py-3 px-4 rounded-xl font-bold text-amber-950 bg-amber-500 hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isBaking ? 'Baking...' : 'Confirm Bake'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Product Modal */}
+            {showAddProductModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-stone-900/30 p-4">
+                    <div className="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 bg-stone-100 rounded-2xl text-stone-600">
+                                <PackageSearch size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold font-serif text-stone-800">{editingProductId ? 'Edit Product' : 'Add New Product'}</h3>
+                                <p className="text-stone-500 text-sm font-medium">{editingProductId ? 'Update product details' : 'Create a new product definition'}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Product Name</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. Chocolate Cake"
+                                    className="w-full p-3 rounded-xl border border-stone-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-stone-800"
+                                    value={newProductName}
+                                    onChange={(e) => setNewProductName(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Category</label>
+                                <select 
+                                    className="w-full p-3 rounded-xl border border-stone-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-stone-800"
+                                    value={newProductCategory}
+                                    onChange={(e) => setNewProductCategory(e.target.value === '' ? '' : Number(e.target.value))}
+                                >
+                                    <option value="">-- No Category --</option>
+                                    {categories.map(c => (
+                                        <option key={c.CategoryID} value={c.CategoryID}>{c.CategoryName}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Unit Price ($)</label>
+                                <input 
+                                    type="number" 
+                                    min="0.01"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className="w-full p-3 rounded-xl border border-stone-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-stone-800"
+                                    value={newProductPrice}
+                                    onChange={(e) => setNewProductPrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                />
+                            </div>
+
+                            <div className="pt-4 flex gap-3">
+                                <button 
+                                    onClick={() => setShowAddProductModal(false)}
+                                    className="flex-1 py-3 px-4 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={handleSaveProduct}
+                                    disabled={isAddingProduct || !newProductName || newProductPrice === ''}
+                                    className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-stone-800 hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isAddingProduct ? 'Saving...' : (editingProductId ? 'Save Changes' : 'Add Product')}
                                 </button>
                             </div>
                         </div>

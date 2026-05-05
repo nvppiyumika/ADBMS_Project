@@ -142,8 +142,8 @@ export default function RecipesPage() {
     }
 
     return (
-        <main className="flex flex-col min-h-screen bg-mesh-gradient">
-            <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
+        <main className="flex flex-col h-screen bg-mesh-gradient overflow-hidden">
+            <header className="px-10 py-8 flex justify-between items-center glass-header z-10 shrink-0">
                 <div>
                     <h2 className="text-3xl font-bold font-serif text-[#451a03]">Recipes</h2>
                     <p className="text-stone-500 mt-1">Manage the ingredient formulas for your products.</p>
