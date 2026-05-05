@@ -145,7 +145,7 @@ export default function RecipesPage() {
         <main className="flex flex-col h-screen bg-mesh-gradient overflow-hidden">
             <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-header z-10 shrink-0">
                 <div>
-                    <h2 className="text-3xl font-bold font-serif text-[#451a03]">Recipes</h2>
+                    <h2 className="text-3xl font-bold  text-[#451a03]">Recipes</h2>
                     <p className="text-stone-500 mt-1">Manage the ingredient formulas for your products.</p>
                 </div>
                 <div className="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -174,7 +174,7 @@ export default function RecipesPage() {
                         {recipes.map(recipe => (
                             <div key={recipe.ProductID} className="glass-card rounded-2xl overflow-hidden border border-white/40 shadow-xl flex flex-col hover:shadow-2xl transition-shadow">
                                 <div className="bg-amber-900/5 p-5 border-b border-amber-900/10 flex justify-between items-center">
-                                    <h3 className="text-xl font-bold font-serif text-amber-950 flex items-center gap-3">
+                                    <h3 className="text-xl font-bold  text-amber-950 flex items-center gap-3">
                                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg"><ChefHat size={20}/></div>
                                         {recipe.ProductName}
                                     </h3>
@@ -225,7 +225,7 @@ export default function RecipesPage() {
                                 <ChefHat size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold font-serif text-stone-800">{isEditing ? 'Edit Recipe' : 'New Recipe'}</h3>
+                                <h3 className="text-2xl font-bold  text-stone-800">{isEditing ? 'Edit Recipe' : 'New Recipe'}</h3>
                                 <p className="text-stone-500 text-sm font-medium">Define the exact ingredients required for a product.</p>
                             </div>
                         </div>

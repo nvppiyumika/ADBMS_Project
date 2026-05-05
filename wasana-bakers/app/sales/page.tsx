@@ -204,7 +204,7 @@ export default function SalesPage() {
         <main className="flex flex-col min-h-screen bg-mesh-gradient">
             <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 glass-header z-10">
                 <div>
-                    <h2 className="text-3xl font-bold font-serif text-[#451a03]">Sales History</h2>
+                    <h2 className="text-3xl font-bold  text-[#451a03]">Sales History</h2>
                     <p className="text-stone-500 mt-1">View past transactions and customer orders.</p>
                 </div>
                 <div className="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -274,7 +274,7 @@ export default function SalesPage() {
                                                 )}
                                             </td>
                                             <td className="p-5 text-right font-bold text-emerald-600 text-lg">
-                                                ${sale.TotalAmount.toFixed(2)}
+                                                LKR {sale.TotalAmount.toFixed(2)}
                                             </td>
                                             <td className="p-5 text-right">
                                                 <button 
@@ -301,7 +301,7 @@ export default function SalesPage() {
                         
                         {/* LEFT: Product Selection */}
                         <div className="w-full md:w-2/3 p-4 md:p-6 flex flex-col bg-white/40 overflow-hidden">
-                            <h3 className="text-xl md:text-2xl font-bold font-serif text-stone-800 mb-4 shrink-0">Select Products</h3>
+                            <h3 className="text-xl md:text-2xl font-bold  text-stone-800 mb-4 shrink-0">Select Products</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 overflow-y-auto pr-2 pb-4">
                                 {products.map(p => (
                                     <button 
@@ -315,7 +315,7 @@ export default function SalesPage() {
                                             <div className="text-xs text-stone-500 mt-1">Stock: {p.StockQuantity}</div>
                                         </div>
                                         <div className="font-bold text-amber-600 text-lg group-hover:scale-105 transition-transform origin-left">
-                                            ${p.UnitPrice.toFixed(2)}
+                                            LKR {p.UnitPrice.toFixed(2)}
                                         </div>
                                     </button>
                                 ))}
@@ -324,7 +324,7 @@ export default function SalesPage() {
 
                         {/* RIGHT: Cart & Checkout */}
                         <div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-white/50 bg-stone-50/80 p-4 md:p-6 flex flex-col h-1/2 md:h-full">
-                            <h3 className="text-xl md:text-2xl font-bold font-serif text-stone-800 mb-4 hidden md:block">Current Sale</h3>
+                            <h3 className="text-xl md:text-2xl font-bold  text-stone-800 mb-4 hidden md:block">Current Sale</h3>
                             
                             <div className="mb-4">
                                 <div className="flex justify-between items-center mb-1">
@@ -428,7 +428,7 @@ export default function SalesPage() {
                                             <div key={item.product.ProductID} className="bg-white p-3 rounded-xl shadow-sm flex items-center justify-between border border-stone-100">
                                                 <div className="flex-1 pr-2">
                                                     <div className="font-bold text-stone-800 text-sm truncate">{item.product.ProductName}</div>
-                                                    <div className="text-xs text-stone-500">${item.product.UnitPrice.toFixed(2)}</div>
+                                                    <div className="text-xs text-stone-500">LKR {item.product.UnitPrice.toFixed(2)}</div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <div className="flex items-center bg-stone-100 rounded-lg">
@@ -449,7 +449,7 @@ export default function SalesPage() {
                             <div className="mt-auto">
                                 <div className="flex justify-between items-center mb-4 px-2">
                                     <span className="font-bold text-stone-500 uppercase tracking-wider text-sm">Total</span>
-                                    <span className="font-black text-2xl text-emerald-600">${totalAmount.toFixed(2)}</span>
+                                    <span className="font-black text-2xl text-emerald-600">LKR {totalAmount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex gap-3">
                                     <button 

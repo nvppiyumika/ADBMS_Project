@@ -54,10 +54,10 @@ export default function Sidebar() {
             <aside className={`w-64 bg-[#451a03] text-stone-100 flex flex-col shadow-2xl shrink-0 h-screen fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 flex justify-between items-center border-b border-amber-800/50">
                     <div className="flex items-center gap-3">
-                        <div className="bg-amber-500 text-[#451a03] p-2.5 rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-                            <Croissant size={28} />
+                        <div className="w-14 h-14 flex items-center justify-center shrink-0">
+                            <img src="/Logo.png" alt="Wasana Bakers Logo" className="w-full h-full object-contain" />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-wider font-serif text-amber-50">Wasana Bakers</h1>
+                        <h1 className="text-2xl font-bold tracking-wider text-amber-50">Wasana Bakers</h1>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="md:hidden text-amber-200 hover:text-white p-1">
                         <X size={24} />

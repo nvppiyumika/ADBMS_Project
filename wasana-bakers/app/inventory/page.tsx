@@ -11,6 +11,7 @@ interface ProductRecord {
     UnitPrice: number;
     ReorderLevel: number | null;
     StockQuantity: number;
+    InventoryValue: number;
 }
 
 interface IngredientRecord {
@@ -49,6 +50,14 @@ export default function InventoryPage() {
     const [newProductCategory, setNewProductCategory] = useState<number | ''>('');
     const [newProductPrice, setNewProductPrice] = useState<number | ''>('');
     const [isAddingProduct, setIsAddingProduct] = useState(false);
+
+    // Ingredient Modal States
+    const [showIngredientModal, setShowIngredientModal] = useState(false);
+    const [editingIngredientId, setEditingIngredientId] = useState<number | null>(null);
+    const [newIngName, setNewIngName] = useState('');
+    const [newIngUnit, setNewIngUnit] = useState('');
+    const [newIngStock, setNewIngStock] = useState<number | ''>('');
+    const [isSavingIngredient, setIsSavingIngredient] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -172,11 +181,94 @@ export default function InventoryPage() {
         }
     }
 
+    async function handleAddProduct() {
+        if (!newProductName || !newProductCategory || !newProductPrice) return;
+        setIsAddingProduct(true);
+        try {
+            const method = editingProductId ? 'PUT' : 'POST';
+            const res = await fetch('/api/inventory/products', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    ProductID: editingProductId,
+                    ProductName: newProductName, 
+                    CategoryID: newProductCategory, 
+                    UnitPrice: newProductPrice 
+                })
+            });
+
+            if (!res.ok) throw new Error(`Failed to ${editingProductId ? 'update' : 'add'} product`);
+
+            setShowAddProductModal(false);
+            setNewProductName('');
+            setNewProductCategory('');
+            setNewProductPrice('');
+            await fetchData();
+        } finally {
+            setIsAddingProduct(false);
+        }
+    }
+
+    async function handleDeleteIngredient(id: number, name: string) {
+        if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+        try {
+            const res = await fetch(`/api/inventory/ingredients?id=${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete ingredient');
+            await fetchData();
+        } catch (err: any) {
+            alert(err.message);
+        }
+    }
+
+    const openAddIngredientModal = () => {
+        setEditingIngredientId(null);
+        setNewIngName('');
+        setNewIngUnit('');
+        setNewIngStock('');
+        setShowIngredientModal(true);
+    };
+
+    const openEditIngredientModal = (ing: IngredientRecord) => {
+        setEditingIngredientId(ing.IngredientID);
+        setNewIngName(ing.IngredientName);
+        setNewIngUnit(ing.Unit);
+        setNewIngStock(ing.StockQuantity);
+        setShowIngredientModal(true);
+    };
+
+    async function handleSaveIngredient() {
+        if (!newIngName || !newIngUnit || newIngStock === '') return;
+        setIsSavingIngredient(true);
+        try {
+            const method = editingIngredientId ? 'PUT' : 'POST';
+            const res = await fetch('/api/inventory/ingredients', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    IngredientID: editingIngredientId,
+                    IngredientName: newIngName,
+                    Unit: newIngUnit,
+                    StockQuantity: newIngStock
+                })
+            });
+
+            if (!res.ok) throw new Error(`Failed to ${editingIngredientId ? 'update' : 'save'} ingredient`);
+
+            setShowIngredientModal(false);
+            await fetchData();
+            alert(`Ingredient successfully ${editingIngredientId ? 'updated' : 'added'}!`);
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsSavingIngredient(false);
+        }
+    }
+
     return (
         <main className="flex flex-col min-h-screen bg-mesh-gradient relative">
             <header className="px-6 pl-20 md:px-10 py-8 grid grid-cols-1 xl:grid-cols-3 gap-6 items-start xl:items-center sticky top-0 glass-header z-10">
                 <div className="flex flex-col justify-self-start">
-                    <h2 className="text-3xl font-bold font-serif text-[#451a03]">Inventory Management</h2>
+                    <h2 className="text-3xl font-bold  text-[#451a03]">Inventory Management</h2>
                     <p className="text-stone-500 mt-1">Manage finished products and raw ingredients.</p>
                 </div>
                 
@@ -221,7 +313,10 @@ export default function InventoryPage() {
                             </button>
                         </div>
                     ) : (
-                        <button className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2 shrink-0 whitespace-nowrap">
+                        <button 
+                            onClick={openAddIngredientModal}
+                            className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2 shrink-0 whitespace-nowrap"
+                        >
                             <Plus size={20} />
                             Add Ingredient Stock
                         </button>
@@ -256,6 +351,7 @@ export default function InventoryPage() {
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider"><Tag size={16} className="inline mr-2"/> Category</th>
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Unit Price</th>
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">In Stock</th>
+                                                <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Total Value</th>
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Actions</th>
                                             </tr>
                                         </thead>
@@ -272,12 +368,15 @@ export default function InventoryPage() {
                                                         ) : <span className="text-stone-400 italic">Uncategorized</span>}
                                                     </td>
                                                     <td className="p-5 text-right font-bold text-stone-800">
-                                                        ${product.UnitPrice.toFixed(2)}
+                                                        LKR {product.UnitPrice.toFixed(2)}
                                                     </td>
                                                     <td className="p-5 text-right">
                                                         <span className={`px-3 py-1.5 rounded-lg border font-bold ${product.StockQuantity > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                                             {product.StockQuantity} units
                                                         </span>
+                                                    </td>
+                                                    <td className="p-5 text-right font-black text-amber-900 whitespace-nowrap">
+                                                        LKR {product.InventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                     </td>
                                                     <td className="p-5 text-right space-x-2">
                                                         <button 
@@ -302,35 +401,54 @@ export default function InventoryPage() {
                                 </div>
                             </div>
 
-                            {/* INGREDIENTS TABLE */}
+                             {/* INGREDIENTS TABLE */}
                             <div className="w-1/2 pl-2 md:pl-5 h-full flex flex-col">
-                                <div className="glass-card rounded-2xl overflow-auto border border-white/40 shadow-xl flex-1 max-h-[70vh]">
-                                    <table className="w-full text-left border-collapse relative min-w-[600px]">
-                                        <thead className="sticky top-0 z-10 backdrop-blur-md">
-                                            <tr className="border-b border-amber-900/10 bg-amber-50/90 text-amber-900 shadow-sm">
-                                                <th className="p-5 font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Wheat size={16}/> Ingredient ID</th>
-                                                <th className="p-5 font-bold text-sm uppercase tracking-wider">Ingredient Name</th>
-                                                <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">In Stock</th>
-                                                <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Unit of Measure</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-amber-900/5">
-                                            {ingredients.map((ing) => (
-                                                <tr key={ing.IngredientID} className="hover:bg-amber-50/30 transition-colors">
-                                                    <td className="p-5 font-medium text-stone-700">ING-{ing.IngredientID.toString().padStart(4, '0')}</td>
-                                                    <td className="p-5 font-bold text-amber-900">{ing.IngredientName}</td>
-                                                    <td className="p-5 text-right">
-                                                        <span className={`px-3 py-1.5 rounded-lg border font-bold ${ing.StockQuantity > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                                                            {ing.StockQuantity}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-5 text-right font-medium text-stone-600 uppercase text-sm">
-                                                        {ing.Unit}
-                                                    </td>
+                                <div className="glass-card rounded-2xl border border-white/40 shadow-xl flex-1 flex flex-col overflow-hidden min-h-0">
+                                    <div className="overflow-auto flex-1">
+                                        <table className="w-full text-left border-collapse relative min-w-[600px]">
+                                            <thead className="sticky top-0 z-10 backdrop-blur-md">
+                                                <tr className="border-b border-amber-900/10 bg-amber-50/90 text-amber-900 shadow-sm">
+                                                    <th className="p-5 font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Wheat size={16}/> Ingredient ID</th>
+                                                    <th className="p-5 font-bold text-sm uppercase tracking-wider">Ingredient Name</th>
+                                                    <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">In Stock</th>
+                                                    <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Unit of Measure</th>
+                                                    <th className="p-5 font-bold text-sm uppercase tracking-wider text-right">Actions</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-amber-900/5">
+                                                {ingredients.map((ing) => (
+                                                    <tr key={ing.IngredientID} className="hover:bg-amber-50/30 transition-colors">
+                                                        <td className="p-5 font-medium text-stone-700">ING-{ing.IngredientID.toString().padStart(4, '0')}</td>
+                                                        <td className="p-5 font-bold text-amber-900">{ing.IngredientName}</td>
+                                                        <td className="p-5 text-right">
+                                                            <span className={`px-3 py-1.5 rounded-lg border font-bold ${ing.StockQuantity > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                                {ing.StockQuantity}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-5 text-right font-medium text-stone-600 uppercase text-sm">
+                                                            {ing.Unit}
+                                                        </td>
+                                                        <td className="p-5 text-right space-x-2">
+                                                            <button 
+                                                                onClick={() => openEditIngredientModal(ing)}
+                                                                className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                                                title="Edit Ingredient"
+                                                            >
+                                                                <Edit size={16} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleDeleteIngredient(ing.IngredientID, ing.IngredientName)}
+                                                                className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                title="Delete Ingredient"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -347,7 +465,7 @@ export default function InventoryPage() {
                                 <ChefHat size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold font-serif text-stone-800">Bake Products</h3>
+                                <h3 className="text-2xl font-bold  text-stone-800">Bake Products</h3>
                                 <p className="text-stone-500 text-sm font-medium">Adds to Product Stock & uses Ingredients</p>
                             </div>
                         </div>
@@ -407,7 +525,7 @@ export default function InventoryPage() {
                                 <PackageSearch size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold font-serif text-stone-800">{editingProductId ? 'Edit Product' : 'Add New Product'}</h3>
+                                <h3 className="text-2xl font-bold  text-stone-800">{editingProductId ? 'Edit Product' : 'Add New Product'}</h3>
                                 <p className="text-stone-500 text-sm font-medium">{editingProductId ? 'Update product details' : 'Create a new product definition'}</p>
                             </div>
                         </div>
@@ -466,6 +584,68 @@ export default function InventoryPage() {
                                     {isAddingProduct ? 'Saving...' : (editingProductId ? 'Save Changes' : 'Add Product')}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Ingredient Modal */}
+            {showIngredientModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-stone-900/30 p-4">
+                    <div className="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 bg-amber-100 rounded-2xl text-amber-600">
+                                <Wheat size={24} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-stone-800">{editingIngredientId ? 'Edit Ingredient' : 'Add New Ingredient'}</h3>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Ingredient Name</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
+                                    placeholder="e.g. Flour, Sugar..."
+                                    value={newIngName}
+                                    onChange={(e) => setNewIngName(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Unit of Measure</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
+                                    placeholder="e.g. kg, liters, units..."
+                                    value={newIngUnit}
+                                    onChange={(e) => setNewIngUnit(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">Initial Stock Quantity</label>
+                                <input 
+                                    type="number" 
+                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
+                                    placeholder="0"
+                                    value={newIngStock}
+                                    onChange={(e) => setNewIngStock(e.target.value === '' ? '' : Number(e.target.value))}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-8">
+                            <button 
+                                onClick={() => setShowIngredientModal(false)}
+                                className="flex-1 px-6 py-3 rounded-xl font-bold text-stone-500 hover:bg-stone-100 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleSaveIngredient}
+                                disabled={isSavingIngredient}
+                                className="flex-1 bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+                            >
+                                {isSavingIngredient ? 'Saving...' : (editingIngredientId ? 'Update' : 'Save')}
+                            </button>
                         </div>
                     </div>
                 </div>

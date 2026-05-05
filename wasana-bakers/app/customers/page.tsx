@@ -105,7 +105,7 @@ export default function CustomersPage() {
         <main className="flex flex-col h-screen overflow-hidden bg-mesh-gradient">
             <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-header z-10 shrink-0">
                 <div>
-                    <h2 className="text-3xl font-bold font-serif text-[#451a03]">Customers</h2>
+                    <h2 className="text-3xl font-bold  text-[#451a03]">Customers</h2>
                     <p className="text-stone-500 mt-1">Manage customer profiles and loyalty points.</p>
                 </div>
                 <div className="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -202,7 +202,7 @@ export default function CustomersPage() {
                                 <Users size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold font-serif text-stone-800">{editingCustomerId ? 'Edit Customer' : 'Add Customer'}</h3>
+                                <h3 className="text-2xl font-bold  text-stone-800">{editingCustomerId ? 'Edit Customer' : 'Add Customer'}</h3>
                                 <p className="text-stone-500 text-sm font-medium">{editingCustomerId ? 'Update profile information' : 'Register a new loyalty member'}</p>
                             </div>
                         </div>

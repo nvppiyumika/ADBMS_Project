@@ -16,7 +16,8 @@ export async function GET() {
                 c.CategoryName, 
                 p.UnitPrice, 
                 p.ReorderLevel,
-                p.StockQuantity
+                p.StockQuantity,
+                dbo.fn_GetProductInventoryValue(p.ProductID) AS InventoryValue
             FROM Products p
             LEFT JOIN Categories c ON p.CategoryID = c.CategoryID
             ORDER BY p.ProductID ASC

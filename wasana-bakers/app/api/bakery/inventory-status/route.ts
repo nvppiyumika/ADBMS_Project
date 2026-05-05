@@ -5,7 +5,7 @@ export async function GET() {
         const pool = await connectToDatabase();
         if (!pool) throw new Error('Database connection failed');
 
-        const result = await pool.request().execute('GetInventoryStatus');
+        const result = await pool.request().query('SELECT * FROM dbo.fn_GetLowStockProducts()');
         
         return new Response(JSON.stringify(result.recordset), {
             status: 200,

@@ -100,7 +100,7 @@ export default function Dashboard() {
             {/* Top Header */}
             <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 glass-header z-10">
                 <div>
-                    <h2 className="text-3xl font-bold text-stone-800 font-serif">Dashboard Overview</h2>
+                    <h2 className="text-3xl font-bold text-stone-800 ">Dashboard Overview</h2>
                     <p className="text-stone-500 mt-1.5 font-medium">Welcome back! Here's what's happening at the bakery today.</p>
                 </div>
                 <div className="flex items-center gap-5 w-full md:w-auto justify-end">
@@ -122,7 +122,7 @@ export default function Dashboard() {
                 {/* Date Range Filter */}
                 <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h3 className="text-2xl font-bold text-stone-800 font-serif">Quick Stats</h3>
+                        <h3 className="text-2xl font-bold text-stone-800 ">Quick Stats</h3>
                         <p className="text-stone-500 text-sm font-medium mt-1">Viewing from <span className="text-amber-700 font-bold">{formatDisplayDate(startDate)}</span> to <span className="text-amber-700 font-bold">{formatDisplayDate(endDate)}</span></p>
                     </div>
                     <div className="flex items-center gap-4 bg-white px-5 py-3 rounded-2xl shadow-sm border border-stone-200">
@@ -176,7 +176,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                             <p className="text-sm font-bold text-stone-400 uppercase tracking-wider">Today's Revenue</p>
-                            <h4 className="text-2xl font-black text-stone-800">${salesSummary.TotalRevenue.toFixed(2)}</h4>
+                            <h4 className="text-2xl font-black text-stone-800">LKR {salesSummary.TotalRevenue.toFixed(2)}</h4>
                         </div>
                     </div>
                     <div className="glass-card p-6 rounded-3xl border border-white flex items-center gap-4">
@@ -215,7 +215,7 @@ export default function Dashboard() {
                             <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
                                 <TrendingUp size={20} />
                             </div>
-                            <h3 className="text-2xl font-bold text-stone-800 font-serif">Product Affinities</h3>
+                            <h3 className="text-2xl font-bold text-stone-800 ">Product Affinities</h3>
                         </div>
 
                         {loading ? (
@@ -258,7 +258,7 @@ export default function Dashboard() {
                             <div className="p-2 bg-red-100 rounded-lg text-red-600">
                                 <AlertCircle size={20} />
                             </div>
-                            <h3 className="text-2xl font-bold text-stone-800 font-serif">Inventory Alerts</h3>
+                            <h3 className="text-2xl font-bold text-stone-800 ">Inventory Alerts</h3>
                         </div>
 
                         <div className="glass-card rounded-3xl border border-white overflow-hidden">
