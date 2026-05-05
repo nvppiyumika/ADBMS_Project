@@ -275,7 +275,7 @@ export default function InventoryPage() {
                                                         ${product.UnitPrice.toFixed(2)}
                                                     </td>
                                                     <td className="p-5 text-right">
-                                                        <span className={`px-3 py-1.5 rounded-lg border font-bold ${product.StockQuantity > (product.ReorderLevel || 10) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                        <span className={`px-3 py-1.5 rounded-lg border font-bold ${product.StockQuantity > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                                             {product.StockQuantity} units
                                                         </span>
                                                     </td>
@@ -320,7 +320,7 @@ export default function InventoryPage() {
                                                     <td className="p-5 font-medium text-stone-700">ING-{ing.IngredientID.toString().padStart(4, '0')}</td>
                                                     <td className="p-5 font-bold text-amber-900">{ing.IngredientName}</td>
                                                     <td className="p-5 text-right">
-                                                        <span className={`px-3 py-1.5 rounded-lg border font-bold ${ing.StockQuantity > (ing.ReorderLevel || 50) ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                        <span className={`px-3 py-1.5 rounded-lg border font-bold ${ing.StockQuantity > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                                             {ing.StockQuantity}
                                                         </span>
                                                     </td>

@@ -261,8 +261,8 @@ export default function SalesPage() {
                                     sales.map((sale) => (
                                         <tr key={sale.SaleID} className="hover:bg-amber-50/30 transition-colors">
                                             <td className="p-5 font-medium text-stone-700">#{sale.SaleID}</td>
-                                            <td className="p-5 text-stone-600">
-                                                {new Date(sale.SaleDate).toLocaleString()}
+                                            <td className="p-5 text-stone-600 font-medium">
+                                                {new Date(sale.SaleDate).toLocaleDateString('en-GB')} {new Date(sale.SaleDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td className="p-5 text-stone-600">
                                                 {sale.CustomerName ? (

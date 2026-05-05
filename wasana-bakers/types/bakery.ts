@@ -54,3 +54,13 @@ export interface ProductAffinity {
     ProductB: string;
     Frequency: number;
 }
+
+export interface InventoryStatus {
+    ProductName: string;
+    StockQuantity: number;
+}
+
+export interface SalesSummary {
+    TotalRevenue: number;
+    OrderCount: number;
+}
