@@ -143,12 +143,12 @@ export default function RecipesPage() {
 
     return (
         <main className="flex flex-col h-screen bg-mesh-gradient overflow-hidden">
-            <header className="px-10 py-8 flex justify-between items-center glass-header z-10 shrink-0">
+            <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-header z-10 shrink-0">
                 <div>
                     <h2 className="text-3xl font-bold font-serif text-[#451a03]">Recipes</h2>
                     <p className="text-stone-500 mt-1">Manage the ingredient formulas for your products.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto justify-end">
                     <button 
                         onClick={openNewRecipeModal}
                         className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2"
@@ -218,7 +218,7 @@ export default function RecipesPage() {
             {/* RECIPE MODAL */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-stone-900/40 p-4">
-                    <div className="glass-card w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl border border-white flex flex-col overflow-hidden">
+                    <div className="glass-card w-full max-w-[95vw] md:max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl border border-white flex flex-col overflow-hidden">
                         
                         <div className="p-6 border-b border-amber-900/10 bg-amber-50/50 flex items-center gap-3">
                             <div className="p-3 bg-amber-100 rounded-2xl text-amber-600">

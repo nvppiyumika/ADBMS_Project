@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { BadgeDollarSign, Calendar, User, ReceiptText, Plus, Minus, Trash2 } from 'lucide-react';
+import { BadgeDollarSign, Calendar, User, ReceiptText, Plus, Minus, Trash2, Search } from 'lucide-react';
 
 interface SaleRecord {
     SaleID: number;
@@ -39,7 +39,16 @@ export default function SalesPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<number | ''>('');
+    const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+    const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Quick Add Customer States
+    const [showQuickAddCustomer, setShowQuickAddCustomer] = useState(false);
+    const [newFirstName, setNewFirstName] = useState('');
+    const [newLastName, setNewLastName] = useState('');
+    const [newPhone, setNewPhone] = useState('');
+    const [isAddingCustomer, setIsAddingCustomer] = useState(false);
 
     useEffect(() => {
         fetchSales();
@@ -55,6 +64,20 @@ export default function SalesPage() {
             setError(err.message);
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    async function handleDeleteSale(saleId: number) {
+        if (!confirm(`Are you sure you want to delete Sale #${saleId}?\nNote: Inventory stock will NOT be automatically returned.`)) return;
+        try {
+            const res = await fetch(`/api/sales?saleId=${saleId}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Failed to delete sale');
+            }
+            await fetchSales();
+        } catch (err: any) {
+            alert(err.message);
         }
     }
 
@@ -84,6 +107,40 @@ export default function SalesPage() {
             }
             return [...prev, { product, quantity: 1 }];
         });
+    }
+
+    async function handleQuickAddCustomer() {
+        if (!newFirstName || !newLastName) return;
+        setIsAddingCustomer(true);
+        try {
+            const res = await fetch('/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ FirstName: newFirstName, LastName: newLastName, PhoneNumber: newPhone })
+            });
+            if (!res.ok) throw new Error('Failed to add customer');
+            
+            const result = await res.json();
+            const newCustomerId = result.CustomerID;
+            
+            const cRes = await fetch('/api/customers');
+            const cData = await cRes.json();
+            setCustomers(cData);
+            
+            if (newCustomerId) {
+                setSelectedCustomer(newCustomerId);
+                setCustomerSearchQuery(`${newFirstName} ${newLastName}`);
+            }
+            
+            setShowQuickAddCustomer(false);
+            setNewFirstName('');
+            setNewLastName('');
+            setNewPhone('');
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsAddingCustomer(false);
+        }
     }
 
     function updateQuantity(productID: number, delta: number) {
@@ -134,6 +191,7 @@ export default function SalesPage() {
             setShowModal(false);
             setCart([]);
             setSelectedCustomer('');
+            setCustomerSearchQuery('');
             fetchSales(); // Refresh the sales table
         } catch (err: any) {
             alert(err.message);
@@ -144,12 +202,12 @@ export default function SalesPage() {
 
     return (
         <main className="flex flex-col min-h-screen bg-mesh-gradient">
-            <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
+            <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 glass-header z-10">
                 <div>
                     <h2 className="text-3xl font-bold font-serif text-[#451a03]">Sales History</h2>
                     <p className="text-stone-500 mt-1">View past transactions and customer orders.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto justify-end">
                     <button 
                         onClick={openNewSaleModal}
                         className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2"
@@ -181,14 +239,15 @@ export default function SalesPage() {
                         </button>
                     </div>
                 ) : (
-                    <div className="glass-card rounded-2xl overflow-y-auto border border-white/40 shadow-xl max-h-[70vh]">
-                        <table className="w-full text-left border-collapse relative">
+                    <div className="glass-card rounded-2xl overflow-auto border border-white/40 shadow-xl max-h-[70vh]">
+                        <table className="w-full text-left border-collapse relative min-w-[800px]">
                             <thead className="sticky top-0 z-10 backdrop-blur-md">
                                 <tr className="border-b border-amber-900/10 bg-amber-50/90 text-amber-900 shadow-sm">
                                     <th className="p-5 font-semibold text-sm uppercase tracking-wider flex items-center gap-2"><ReceiptText size={16}/> Receipt ID</th>
                                     <th className="p-5 font-semibold text-sm uppercase tracking-wider"><Calendar size={16} className="inline mr-2"/> Date & Time</th>
                                     <th className="p-5 font-semibold text-sm uppercase tracking-wider"><User size={16} className="inline mr-2"/> Customer</th>
                                     <th className="p-5 font-semibold text-sm uppercase tracking-wider text-right">Total Amount</th>
+                                    <th className="p-5 font-semibold text-sm uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-amber-900/5">
@@ -217,6 +276,15 @@ export default function SalesPage() {
                                             <td className="p-5 text-right font-bold text-emerald-600 text-lg">
                                                 ${sale.TotalAmount.toFixed(2)}
                                             </td>
+                                            <td className="p-5 text-right">
+                                                <button 
+                                                    onClick={() => handleDeleteSale(sale.SaleID)} 
+                                                    className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Delete Sale"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -229,12 +297,12 @@ export default function SalesPage() {
             {/* POS MODAL */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-stone-900/40 p-4">
-                    <div className="glass-card w-full max-w-5xl h-[80vh] rounded-3xl shadow-2xl border border-white flex overflow-hidden">
+                    <div className="glass-card w-full max-w-5xl h-[90vh] md:h-[80vh] rounded-3xl shadow-2xl border border-white flex flex-col md:flex-row overflow-hidden">
                         
                         {/* LEFT: Product Selection */}
-                        <div className="w-2/3 p-6 flex flex-col bg-white/40">
-                            <h3 className="text-2xl font-bold font-serif text-stone-800 mb-4">Select Products</h3>
-                            <div className="grid grid-cols-3 gap-4 overflow-y-auto pr-2 pb-4">
+                        <div className="w-full md:w-2/3 p-4 md:p-6 flex flex-col bg-white/40 overflow-hidden">
+                            <h3 className="text-xl md:text-2xl font-bold font-serif text-stone-800 mb-4 shrink-0">Select Products</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 overflow-y-auto pr-2 pb-4">
                                 {products.map(p => (
                                     <button 
                                         key={p.ProductID}
@@ -255,21 +323,98 @@ export default function SalesPage() {
                         </div>
 
                         {/* RIGHT: Cart & Checkout */}
-                        <div className="w-1/3 border-l border-white/50 bg-stone-50/80 p-6 flex flex-col">
-                            <h3 className="text-2xl font-bold font-serif text-stone-800 mb-4">Current Sale</h3>
+                        <div className="w-full md:w-1/3 border-t md:border-t-0 md:border-l border-white/50 bg-stone-50/80 p-4 md:p-6 flex flex-col h-1/2 md:h-full">
+                            <h3 className="text-xl md:text-2xl font-bold font-serif text-stone-800 mb-4 hidden md:block">Current Sale</h3>
                             
                             <div className="mb-4">
-                                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Customer</label>
-                                <select 
-                                    className="w-full p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium text-stone-800"
-                                    value={selectedCustomer}
-                                    onChange={(e) => setSelectedCustomer(e.target.value === '' ? '' : Number(e.target.value))}
-                                >
-                                    <option value="">Walk-in (No Customer)</option>
-                                    {customers.map(c => (
-                                        <option key={c.CustomerID} value={c.CustomerID}>{c.FirstName} {c.LastName}</option>
-                                    ))}
-                                </select>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider">Customer</label>
+                                    {!showQuickAddCustomer && (
+                                        <button 
+                                            onClick={() => setShowQuickAddCustomer(true)}
+                                            className="text-xs font-bold text-amber-600 hover:text-amber-700"
+                                        >
+                                            + Add New
+                                        </button>
+                                    )}
+                                </div>
+                                
+                                {showQuickAddCustomer ? (
+                                    <div className="bg-white p-3 rounded-xl border border-amber-200 shadow-sm space-y-3">
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            <input type="text" placeholder="First Name" className="w-full p-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium" value={newFirstName} onChange={e => setNewFirstName(e.target.value)} />
+                                            <input type="text" placeholder="Last Name" className="w-full p-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium" value={newLastName} onChange={e => setNewLastName(e.target.value)} />
+                                        </div>
+                                        <div className="flex flex-col xl:flex-row gap-2 items-stretch xl:items-center">
+                                            <input type="tel" placeholder="Phone (Optional)" className="w-full xl:flex-1 p-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium" value={newPhone} onChange={e => setNewPhone(e.target.value)} />
+                                            <div className="flex gap-2 justify-end">
+                                                <button onClick={() => setShowQuickAddCustomer(false)} className="flex-1 xl:flex-none px-3 py-2 text-sm font-bold text-stone-500 hover:text-stone-700 bg-stone-100 rounded-lg transition-colors shrink-0">Cancel</button>
+                                                <button onClick={handleQuickAddCustomer} disabled={isAddingCustomer || !newFirstName || !newLastName} className="flex-1 xl:flex-none px-3 py-2 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-lg disabled:opacity-50 transition-colors shrink-0">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                        <div className="relative">
+                                            <input 
+                                                type="text"
+                                                placeholder="Search Name or Mobile... (or blank for Walk-in)"
+                                                className="w-full p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium text-stone-800 pr-10"
+                                                value={customerSearchQuery}
+                                                onChange={(e) => {
+                                                    setCustomerSearchQuery(e.target.value);
+                                                    setIsCustomerDropdownOpen(true);
+                                                    if (selectedCustomer !== '') setSelectedCustomer('');
+                                                }}
+                                                onFocus={() => setIsCustomerDropdownOpen(true)}
+                                            />
+                                            <Search size={16} className="absolute right-3 top-3.5 text-stone-400 pointer-events-none" />
+                                        </div>
+                                        
+                                        {isCustomerDropdownOpen && (
+                                            <>
+                                                <div className="fixed inset-0 z-40" onClick={() => setIsCustomerDropdownOpen(false)} />
+                                                <div className="absolute z-50 w-full mt-1 bg-white border border-stone-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedCustomer('');
+                                                            setCustomerSearchQuery('');
+                                                            setIsCustomerDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 hover:bg-stone-50 text-stone-600 font-medium border-b border-stone-100 flex items-center justify-between"
+                                                    >
+                                                        <span>Walk-in (No Customer)</span>
+                                                        {selectedCustomer === '' && <div className="w-2 h-2 rounded-full bg-amber-500"></div>}
+                                                    </button>
+                                                    {customers
+                                                        .filter(c => {
+                                                            const search = customerSearchQuery.toLowerCase();
+                                                            const fullName = `${c.FirstName} ${c.LastName}`.toLowerCase();
+                                                            return fullName.includes(search) || (c.PhoneNumber && c.PhoneNumber.includes(search));
+                                                        })
+                                                        .map(c => (
+                                                            <button
+                                                                key={c.CustomerID}
+                                                                onClick={() => {
+                                                                    setSelectedCustomer(c.CustomerID);
+                                                                    setCustomerSearchQuery(`${c.FirstName} ${c.LastName}`);
+                                                                    setIsCustomerDropdownOpen(false);
+                                                                }}
+                                                                className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-stone-100 last:border-0 flex items-center justify-between group"
+                                                            >
+                                                                <div>
+                                                                    <div className="font-bold text-stone-800 group-hover:text-amber-900">{c.FirstName} {c.LastName}</div>
+                                                                    <div className="text-xs text-stone-500">{c.PhoneNumber || 'No Phone'}</div>
+                                                                </div>
+                                                                {selectedCustomer === c.CustomerID && <div className="w-2 h-2 rounded-full bg-amber-500"></div>}
+                                                            </button>
+                                                        ))
+                                                    }
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex-1 overflow-y-auto mb-4 border-t border-b border-stone-200 py-2">

@@ -174,54 +174,54 @@ export default function InventoryPage() {
 
     return (
         <main className="flex flex-col min-h-screen bg-mesh-gradient relative">
-            <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
-                <div>
+            <header className="px-6 pl-20 md:px-10 py-8 grid grid-cols-1 xl:grid-cols-3 gap-6 items-start xl:items-center sticky top-0 glass-header z-10">
+                <div className="flex flex-col justify-self-start">
                     <h2 className="text-3xl font-bold font-serif text-[#451a03]">Inventory Management</h2>
                     <p className="text-stone-500 mt-1">Manage finished products and raw ingredients.</p>
                 </div>
                 
                 {/* Slide Tabs */}
-                <div className="flex bg-amber-900/10 p-1 rounded-2xl shadow-inner relative overflow-hidden">
+                <div className="flex bg-amber-900/10 p-1 rounded-2xl shadow-inner relative overflow-hidden w-full md:w-auto justify-self-start xl:justify-self-center shrink-0">
                     <div 
                         className="absolute inset-y-1 w-1/2 bg-white rounded-xl shadow-sm transition-transform duration-300 ease-in-out border border-amber-900/10"
                         style={{ transform: activeTab === 'products' ? 'translateX(4px)' : 'translateX(calc(100% - 4px))' }}
                     />
                     <button 
                         onClick={() => setActiveTab('products')}
-                        className={`relative z-10 flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-colors ${activeTab === 'products' ? 'text-amber-900' : 'text-stone-500 hover:text-amber-800'}`}
+                        className={`relative z-10 flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-colors ${activeTab === 'products' ? 'text-amber-900' : 'text-stone-500 hover:text-amber-800'}`}
                     >
                         <PackageSearch size={18} />
                         Products
                     </button>
                     <button 
                         onClick={() => setActiveTab('ingredients')}
-                        className={`relative z-10 flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-colors ${activeTab === 'ingredients' ? 'text-amber-900' : 'text-stone-500 hover:text-amber-800'}`}
+                        className={`relative z-10 flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-colors ${activeTab === 'ingredients' ? 'text-amber-900' : 'text-stone-500 hover:text-amber-800'}`}
                     >
                         <Wheat size={18} />
                         Ingredients
                     </button>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 xl:pb-0 justify-self-start xl:justify-self-end shrink-0">
                     {activeTab === 'products' ? (
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 whitespace-nowrap">
                             <button 
                                 onClick={openAddProductModal}
-                                className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2"
+                                className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2 shrink-0"
                             >
                                 <Plus size={20} />
                                 Add New Product
                             </button>
                             <button 
                                 onClick={() => setShowBakeModal(true)}
-                                className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2"
+                                className="bg-amber-500 hover:bg-amber-600 text-amber-950 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2 shrink-0"
                             >
                                 <ChefHat size={20} />
                                 Bake Product
                             </button>
                         </div>
                     ) : (
-                        <button className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2">
+                        <button className="bg-stone-800 hover:bg-stone-900 text-stone-100 px-6 py-2.5 rounded-xl font-bold transition-colors shadow-lg flex items-center gap-2 shrink-0 whitespace-nowrap">
                             <Plus size={20} />
                             Add Ingredient Stock
                         </button>
@@ -246,9 +246,9 @@ export default function InventoryPage() {
                             style={{ transform: activeTab === 'products' ? 'translateX(0)' : 'translateX(-50%)' }}
                         >
                             {/* PRODUCTS TABLE */}
-                            <div className="w-1/2 pr-5 h-full flex flex-col">
-                                <div className="glass-card rounded-2xl overflow-y-auto border border-white/40 shadow-xl flex-1 max-h-[70vh]">
-                                    <table className="w-full text-left border-collapse relative">
+                            <div className="w-1/2 pr-2 md:pr-5 h-full flex flex-col">
+                                <div className="glass-card rounded-2xl overflow-auto border border-white/40 shadow-xl flex-1 max-h-[70vh]">
+                                    <table className="w-full text-left border-collapse relative min-w-[800px]">
                                         <thead className="sticky top-0 z-10 backdrop-blur-md">
                                             <tr className="border-b border-amber-900/10 bg-amber-50/90 text-amber-900 shadow-sm">
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider flex items-center gap-2"><PackageSearch size={16}/> Product ID</th>
@@ -303,9 +303,9 @@ export default function InventoryPage() {
                             </div>
 
                             {/* INGREDIENTS TABLE */}
-                            <div className="w-1/2 pl-5 h-full flex flex-col">
-                                <div className="glass-card rounded-2xl overflow-y-auto border border-white/40 shadow-xl flex-1 max-h-[70vh]">
-                                    <table className="w-full text-left border-collapse relative">
+                            <div className="w-1/2 pl-2 md:pl-5 h-full flex flex-col">
+                                <div className="glass-card rounded-2xl overflow-auto border border-white/40 shadow-xl flex-1 max-h-[70vh]">
+                                    <table className="w-full text-left border-collapse relative min-w-[600px]">
                                         <thead className="sticky top-0 z-10 backdrop-blur-md">
                                             <tr className="border-b border-amber-900/10 bg-amber-50/90 text-amber-900 shadow-sm">
                                                 <th className="p-5 font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Wheat size={16}/> Ingredient ID</th>

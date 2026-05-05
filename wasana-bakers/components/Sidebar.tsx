@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { 
     Croissant, 
     LayoutDashboard, 
@@ -9,7 +10,9 @@ import {
     BadgeDollarSign, 
     Users, 
     Settings,
-    ChefHat
+    ChefHat,
+    Menu,
+    X
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -24,14 +27,42 @@ export default function Sidebar() {
         { name: 'Settings', href: '/settings', icon: Settings },
     ];
 
+    const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [pathname]);
+
     return (
-        <aside className="w-64 bg-[#451a03] text-stone-100 flex flex-col shadow-2xl z-20 shrink-0 h-screen sticky top-0">
-            <div className="p-6 flex items-center gap-3 border-b border-amber-800/50">
-                <div className="bg-amber-500 text-[#451a03] p-2.5 rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-                    <Croissant size={28} />
+        <>
+            {/* Mobile Hamburger Button */}
+            <button 
+                onClick={() => setIsOpen(true)}
+                className="md:hidden fixed top-6 left-6 z-30 bg-[#451a03] text-amber-50 p-2.5 rounded-xl shadow-xl border border-amber-800/50"
+            >
+                <Menu size={24} />
+            </button>
+
+            {/* Mobile Backdrop */}
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            <aside className={`w-64 bg-[#451a03] text-stone-100 flex flex-col shadow-2xl shrink-0 h-screen fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                <div className="p-6 flex justify-between items-center border-b border-amber-800/50">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-amber-500 text-[#451a03] p-2.5 rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+                            <Croissant size={28} />
+                        </div>
+                        <h1 className="text-2xl font-bold tracking-wider font-serif text-amber-50">Wasana Bakers</h1>
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="md:hidden text-amber-200 hover:text-white p-1">
+                        <X size={24} />
+                    </button>
                 </div>
-                <h1 className="text-2xl font-bold tracking-wider font-serif text-amber-50">Wasana Bakers</h1>
-            </div>
             
             <nav className="flex-1 py-8 px-4 flex flex-col gap-2">
                 {navItems.map((item) => {
@@ -57,5 +88,6 @@ export default function Sidebar() {
                 © 2026 Wasana Bakers
             </div>
         </aside>
+        </>
     );
 }

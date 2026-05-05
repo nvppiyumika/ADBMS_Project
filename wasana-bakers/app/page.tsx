@@ -47,16 +47,16 @@ export default function Dashboard() {
     return (
         <main className="flex flex-col min-h-screen bg-mesh-gradient">
                 {/* Top Header */}
-                <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
+                <header className="px-6 pl-20 md:px-10 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 glass-header z-10">
                     <div>
                         <h2 className="text-3xl font-bold text-stone-800 font-serif">Dashboard Overview</h2>
                         <p className="text-stone-500 mt-1.5 font-medium">Welcome back! Here's what's happening at the bakery today.</p>
                     </div>
-                    <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-5 w-full md:w-auto justify-end">
                         <button className="p-2.5 rounded-full bg-white text-stone-500 shadow-sm border border-stone-200 hover:shadow-md hover:text-amber-600 transition-all hover:bg-amber-50">
                             <RefreshCw size={20} />
                         </button>
-                        <div className="h-11 w-11 rounded-full border-2 border-amber-500 overflow-hidden shadow-md ring-4 ring-amber-100 cursor-pointer">
+                        <div className="h-11 w-11 rounded-full border-2 border-amber-500 overflow-hidden shadow-md ring-4 ring-amber-100 cursor-pointer shrink-0">
                             <img src="https://i.pravatar.cc/150?img=47" alt="Admin User" className="w-full h-full object-cover" />
                         </div>
                     </div>

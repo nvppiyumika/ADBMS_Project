@@ -83,3 +83,42 @@ export async function POST(request: Request) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    let pool;
+    let transaction;
+    try {
+        const { searchParams } = new URL(request.url);
+        const saleId = searchParams.get('saleId');
+
+        if (!saleId) {
+            return new Response(JSON.stringify({ error: 'Missing saleId parameter' }), { status: 400 });
+        }
+
+        pool = await connectToDatabase();
+        if (!pool) throw new Error('Database connection failed');
+
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            const req = new sql.Request(transaction);
+            await req.input('SaleID', sql.Int, parseInt(saleId)).query(`
+                DELETE FROM SalesDetails WHERE SaleID = @SaleID;
+                DELETE FROM Sales WHERE SaleID = @SaleID;
+            `);
+
+            await transaction.commit();
+
+            return new Response(JSON.stringify({ message: 'Sale deleted successfully. Inventory was NOT adjusted.' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (txError) {
+            await transaction.rollback();
+            throw txError;
+        }
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
+}
