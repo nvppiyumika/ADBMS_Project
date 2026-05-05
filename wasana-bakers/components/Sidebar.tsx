@@ -8,7 +8,8 @@ import {
     PackageSearch, 
     BadgeDollarSign, 
     Users, 
-    Settings
+    Settings,
+    ChefHat
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -17,6 +18,7 @@ export default function Sidebar() {
     const navItems = [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         { name: 'Inventory', href: '/inventory', icon: PackageSearch },
+        { name: 'Recipes', href: '/recipes', icon: ChefHat },
         { name: 'Sales', href: '/sales', icon: BadgeDollarSign },
         { name: 'Customers', href: '/customers', icon: Users },
         { name: 'Settings', href: '/settings', icon: Settings },
