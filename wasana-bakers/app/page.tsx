@@ -45,40 +45,7 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="flex h-screen bg-[#FAFAF9] font-sans text-stone-900 overflow-hidden selection:bg-amber-200">
-            {/* Sidebar */}
-            <aside className="w-64 bg-[#451a03] text-stone-100 flex flex-col shadow-2xl z-20">
-                <div className="p-6 flex items-center gap-3 border-b border-amber-800/50">
-                    <div className="bg-amber-500 text-[#451a03] p-2.5 rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-                        <Croissant size={28} />
-                    </div>
-                    <h1 className="text-2xl font-bold tracking-wider font-serif text-amber-50">Wasana Bakers</h1>
-                </div>
-                
-                <nav className="flex-1 py-8 px-4 flex flex-col gap-2">
-                    {navItems.map((item) => (
-                        <a 
-                            key={item.name} 
-                            href="#" 
-                            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ease-in-out ${
-                                item.active 
-                                    ? 'bg-[#78350f]/80 text-amber-400 shadow-inner border border-amber-900/50' 
-                                    : 'hover:bg-[#78350f]/40 hover:text-amber-200 text-stone-300'
-                            }`}
-                        >
-                            <item.icon size={20} className={item.active ? "text-amber-400" : "opacity-70"} />
-                            <span className="font-medium">{item.name}</span>
-                        </a>
-                    ))}
-                </nav>
-
-                <div className="p-6 text-sm text-amber-200/50 border-t border-amber-800/50 font-medium">
-                    © 2026 Wasana Bakers
-                </div>
-            </aside>
-
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-mesh-gradient">
+        <main className="flex flex-col min-h-screen bg-mesh-gradient">
                 {/* Top Header */}
                 <header className="px-10 py-8 flex justify-between items-center sticky top-0 glass-header z-10">
                     <div>
@@ -139,15 +106,16 @@ export default function Dashboard() {
                                     key={index} 
                                     className="group relative glass-card glass-card-hover p-6 rounded-3xl flex flex-col"
                                 >
-                                    {/* Connection Line & Plus symbol */}
-                                    <div className="absolute top-[4.5rem] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-stone-100 shadow-sm z-10 text-amber-500 font-black group-hover:border-amber-200 group-hover:bg-amber-50 group-hover:scale-110 transition-all duration-300">
-                                        +
-                                    </div>
-                                    
                                     <div className="flex flex-col gap-3 mb-6 relative z-0">
                                         <div className="glass-inner rounded-2xl p-4 text-center group-hover:bg-amber-50/40 transition-colors duration-300 h-20 flex items-center justify-center">
                                             <p className="font-bold text-stone-800 line-clamp-2">{pair.ProductA}</p>
                                         </div>
+                                        
+                                        {/* Connection Line & Plus symbol */}
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-stone-100 shadow-sm z-10 text-amber-500 font-black group-hover:border-amber-200 group-hover:bg-amber-50 group-hover:scale-110 transition-all duration-300">
+                                            +
+                                        </div>
+
                                         <div className="glass-inner rounded-2xl p-4 text-center group-hover:bg-amber-50/40 transition-colors duration-300 h-20 flex items-center justify-center">
                                             <p className="font-bold text-stone-800 line-clamp-2">{pair.ProductB}</p>
                                         </div>
@@ -166,6 +134,5 @@ export default function Dashboard() {
                     )}
                 </div>
             </main>
-        </div>
     );
 }

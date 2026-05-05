@@ -1,23 +1,15 @@
-import sql from 'mssql';
+import sql from 'mssql/msnodesqlv8';
+import { ConnectionPool } from 'mssql';
 
 const config = {
-    // Use the Server Name from your screenshot
-    server: 'localhost\\SQLEXPRESS', 
-    database: 'BakeryDB', // The name of the DB you created in SSMS
-    options: {
-        encrypt: true, // Matches "Encrypt: Mandatory" in your image
-        trustServerCertificate: true, // Matches the checked box in your image
-        enableArithAbort: true
-    },
-    // For Windows Authentication, we leave user/password out 
-    // and rely on the local system account.
-    driver: 'msnodesqlv8' 
+    connectionString: 'Driver={ODBC Driver 17 for SQL Server};Server=localhost\\SQLEXPRESS;Database=BakeryDB;Trusted_Connection=yes;Encrypt=no;'
 };
 
-export async function connectToDatabase() {
+export async function connectToDatabase(): Promise<ConnectionPool> {
     try {
+        // @ts-ignore - The mssql typings don't know that msnodesqlv8 accepts connectionString in the config object
         let pool = await sql.connect(config);
-        return pool;
+        return pool as unknown as ConnectionPool;
     } catch (err) {
         console.error('Database Connection Failed: ', err);
         throw err;

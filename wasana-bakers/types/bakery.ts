@@ -1,20 +1,52 @@
+export interface Category {
+    CategoryID: number;
+    CategoryName: string;
+}
+
 export interface Product {
     ProductID: number;
-    Name: string;
-    Description?: string;
-    Price: number;
+    ProductName: string;
     CategoryID?: number;
-    StockQuantity: number;
-    CreatedAt?: Date;
-    UpdatedAt?: Date;
+    UnitPrice: number;
+    ReorderLevel?: number;
 }
 
 export interface Ingredient {
     IngredientID: number;
-    Name: string;
-    QuantityInStock: number;
-    Unit: string;
-    ReorderLevel?: number;
+    IngredientName: string;
+    StockQuantity: number;
+    UnitOfMeasure: string;
+}
+
+export interface Recipe {
+    ProductID: number;
+    IngredientID: number;
+    QuantityRequired: number;
+}
+
+export interface Customer {
+    CustomerID: number;
+    FirstName: string;
+    LastName: string;
+    Email?: string;
+    PhoneNumber?: string;
+    JoinedDate?: Date;
+    LoyaltyPoints: number;
+}
+
+export interface Sale {
+    SaleID: number;
+    SaleDate?: Date;
+    TotalAmount?: number;
+    CustomerID?: number;
+}
+
+export interface SalesDetail {
+    SalesDetailID: number;
+    SaleID?: number;
+    ProductID?: number;
+    Quantity: number;
+    SubTotal?: number;
 }
 
 export interface ProductAffinity {

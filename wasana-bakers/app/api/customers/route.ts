@@ -1,21 +1,27 @@
 import { connectToDatabase } from '@/lib/db';
-import { ProductAffinity } from '@/types/bakery';
 
 export async function GET() {
     try {
         const pool = await connectToDatabase();
-
+        
         if (!pool) {
             throw new Error('Database connection failed');
         }
 
-        // This executes the "GetProductAffinity" procedure for your assignment
-        const result = await pool.request().execute('GetProductAffinity');
-
-        // Map the result to our strongly typed interface
-        const affinities: ProductAffinity[] = result.recordset;
-
-        return new Response(JSON.stringify(affinities), {
+        const result = await pool.request().query(`
+            SELECT 
+                CustomerID, 
+                FirstName, 
+                LastName, 
+                Email, 
+                PhoneNumber, 
+                JoinedDate, 
+                LoyaltyPoints
+            FROM Customers
+            ORDER BY FirstName ASC, LastName ASC
+        `);
+        
+        return new Response(JSON.stringify(result.recordset), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });
