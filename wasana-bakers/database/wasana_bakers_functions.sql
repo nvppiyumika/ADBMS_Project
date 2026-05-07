@@ -4,6 +4,7 @@
 
 -- 1. SCALAR FUNCTION: Calculate Total Inventory Value for a Product
 -- This function takes a ProductID and returns the total market value of the current stock.
+
 CREATE FUNCTION dbo.fn_GetProductInventoryValue (@ProductID INT)
 RETURNS DECIMAL(18, 2)
 AS
@@ -20,6 +21,7 @@ GO
 
 -- 2. SCALAR FUNCTION: Get Customer Loyalty Level
 -- Categorizes customers based on their total spending.
+
 CREATE FUNCTION dbo.fn_GetCustomerLoyaltyLevel (@CustomerID INT)
 RETURNS VARCHAR(20)
 AS
@@ -42,6 +44,7 @@ GO
 
 -- 3. TABLE-VALUED FUNCTION: Get Products Below Reorder Level
 -- Returns a table of all products that need restocking.
+
 CREATE FUNCTION dbo.fn_GetLowStockProducts ()
 RETURNS TABLE
 AS
@@ -54,6 +57,7 @@ GO
 
 -- 4. SCALAR FUNCTION: Format Date to Wasana Standard (DD/MM/YYYY)
 -- Ensures consistent date formatting across all DB views and reports.
+
 CREATE FUNCTION dbo.fn_FormatDate (@InputDate DATETIME)
 RETURNS VARCHAR(10)
 AS

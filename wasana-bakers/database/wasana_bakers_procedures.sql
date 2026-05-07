@@ -4,6 +4,7 @@
 
 -- 1. Get Product Affinity (Market Basket Analysis)
 -- Finds top 5 pairs of products frequently bought together
+
 CREATE OR ALTER PROCEDURE GetProductAffinity
 AS
 BEGIN
@@ -23,6 +24,7 @@ GO
 
 -- 2. Get Inventory Status (Low Stock Alert)
 -- Identifies products with stock levels below 20 units
+
 CREATE OR ALTER PROCEDURE GetInventoryStatus
 AS
 BEGIN
@@ -38,6 +40,7 @@ GO
 
 -- 3. Get Sales Summary By Date Range
 -- Calculates total revenue and order count for a specific date range
+
 CREATE OR ALTER PROCEDURE GetSalesSummaryByDateRange
     @StartDate DATE,
     @EndDate DATE

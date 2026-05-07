@@ -9,6 +9,7 @@ GO
 
 -- Create the ProductBakeLog table to securely track baking history
 -- This acts as the event that triggers our inventory math
+
 CREATE TABLE ProductBakeLog (
     LogID INT IDENTITY(1,1) PRIMARY KEY,
     ProductID INT NOT NULL,
